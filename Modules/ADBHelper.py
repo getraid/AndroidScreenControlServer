@@ -1,36 +1,30 @@
+# native
 import os
 import platform
 import threading
-import configparser
 import atexit
-import dload
 import sys
+
+# pip packages
+import configparser
+import dload
 
 
 class ADBHelper:
-    def __init__(self, config):
+    def __init__(self, connector):
         super(ADBHelper, self)
         # register event on window close
         atexit.register(self.OnExit)
         # apply/set user configs
-        self.config = config
-        self.ApplyConfig()
-        # call class main function
+        self.connectorRef = connector
+        # checks whether you run Windows, Linux or Mac and sets the commands accordingly
         self.CheckVer()
 
-    def OnExit(self):
-        if platform.system() == "Windows":
-            os.system('platform-tools\\adb.exe kill-server')
-        else:
-            os.system('adb kill-server')
-
     def Download(self):
-        print(sys.path)
-        dload.save_unzip(
-            "https://dl.google.com/android/repository/platform-tools-latest-windows.zip", ".")
-
-    def ApplyConfig(self):
-        pass
+        url = str(
+            self.connectorRef.config['SETTINGS']['ADB_Platform_Tools_URL'])
+        print("Can not find platform-tools folder. Downloading from: " + url)
+        dload.save_unzip(url, ".")
 
     def CheckVer(self):
         if (platform.system() == "Windows"):
@@ -38,11 +32,21 @@ class ADBHelper:
             os.system('platform-tools\\adb.exe usb')
             if not os.path.exists("platform-tools"):
                 self.Download()
-            # init install subroutine
+        # Linux and MacOs are planned, but I firstly want to focus on the Windows version
+        # -------------------------------------------
+        # # Linux
+        # elif(platform.system() == "Linux"):
+        #     # init install subroutine
+        #     print("tbd")
+        # # MacOs
+        # elif(platform.system() == "Darwin"):
+        #     # init install subroutine
+        #     print("tbd")
+        # else:
+        #     print("err")
 
-        # MacOs
-        elif(platform.system() == "Darwin"):
-            # init install subroutine
-            print("tbd")
+    def OnExit(self):
+        if platform.system() == "Windows":
+            os.system('platform-tools\\adb.exe kill-server')
         else:
-            print("err")
+            os.system('adb kill-server')

@@ -2,12 +2,13 @@
 import os
 import platform
 import threading
-import configparser
 import atexit
 
 # pip packages
 import wx
+import configparser
 
+# custom modules
 import Modules.GUIDrawer as GUIDrawer
 import Modules.ADBHelper as ADBHelper
 
@@ -18,7 +19,7 @@ class MainConnector:
         self.config = config
 
         # ADBHelper
-        adbhelper = ADBHelper.ADBHelper(config)
+        adbhelper = ADBHelper.ADBHelper(self)
 
         windowThread = threading.Thread(target=self.StartGUI)
         windowThread.start()
@@ -33,9 +34,14 @@ class MainConnector:
 
 
 if __name__ == '__main__':
-    # Reads userconfig(config.ini) and passes it to ASCS obj
+    # Reads userconfig(config.ini) and passes it to MainConnector obj
     config = configparser.ConfigParser()
-    config['DEFAULT'] = {'': ''}
+
+    # Sets default config, if ini is missing
+    config['SETTINGS'] = {
+        'ADB_Platform_Tools_URL': 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip'}
+
+    # Overwrites local config with file (if exists)
     config.read('config.ini')
 
     main = MainConnector(config)

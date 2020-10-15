@@ -1,5 +1,7 @@
-import wx
+# native
 import atexit
+# pip packages
+import wx
 
 
 class GUIDrawer(wx.Frame):
