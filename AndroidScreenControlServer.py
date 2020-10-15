@@ -1,20 +1,42 @@
+# native
 import os
 import platform
-import wx
 import threading
+import configparser
+import atexit
+
+# pip packages
+import wx
+
+# submodules
+import Modules.DownloadADBWin as DownloadADBWin
 
 
 class ASCS:
-    def __init__(self, *args, **kw):
+    def __init__(self, config):
         super(ASCS, self)
+        atexit.register(self.OnExit)
+        self.config = config
+        self.ApplyConfig()
+        self.main()
+
+    def OnExit(self):
+        if platform.system() == "Windows":
+            os.system('platform-tools\\adb.exe kill-server')
+        else:
+            os.system('adb kill-server')
+
+    def ApplyConfig(self):
+        pass
 
     def CheckVer(self):
         if (platform.system() == "Windows"):
             # check if platform tools installed on win, else call DownloadADBWin.py
             os.system('platform-tools\\adb.exe usb')
-        elif(platform.system() == "Linux"):
+            if not os.path.exists("platform-tools"):
+                DownloadADBWin.Download()
             # init install subroutine
-            os.system('adb usb')
+
         # MacOs
         elif(platform.system() == "Darwin"):
             # init install subroutine
@@ -38,11 +60,16 @@ class ASCS:
         a.MainLoop()
 
     def main(self):
+        print(self.config['DEFAULT']['HideWindow'])
         self.CheckVer()
         windowThread = threading.Thread(target=self.DrawGUI(), args=(1,))
         windowThread.start()
 
 
 if __name__ == '__main__':
-    ascs = ASCS()
-    ascs.main()
+    config = configparser.ConfigParser()
+    config['DEFAULT'] = {'HideWindow': 'false'}
+
+    config.read('config.ini')
+
+    ascs = ASCS(config)
