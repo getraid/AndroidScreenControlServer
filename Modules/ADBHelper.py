@@ -21,6 +21,8 @@ class ADBHelper:
         self.CheckVer()
 
     def Download(self):
+        # workaround when build as exe via pyinstaller
+        os.system('mkdir modules')
         url = str(
             self.connectorRef.config['SETTINGS']['ADB_Platform_Tools_URL'])
         print("Can not find platform-tools folder. Downloading from: " + url)
