@@ -8,68 +8,34 @@ import atexit
 # pip packages
 import wx
 
-# submodules
-import Modules.DownloadADBWin as DownloadADBWin
+import Modules.GUIDrawer as GUIDrawer
+import Modules.ADBHelper as ADBHelper
 
 
-class ASCS:
+class MainConnector:
     def __init__(self, config):
-        super(ASCS, self)
-        atexit.register(self.OnExit)
+        super(MainConnector, self)
         self.config = config
-        self.ApplyConfig()
-        self.main()
 
-    def OnExit(self):
-        if platform.system() == "Windows":
-            os.system('platform-tools\\adb.exe kill-server')
-        else:
-            os.system('adb kill-server')
+        # ADBHelper
+        adbhelper = ADBHelper.ADBHelper(config)
 
-    def ApplyConfig(self):
-        pass
-
-    def CheckVer(self):
-        if (platform.system() == "Windows"):
-            # check if platform tools installed on win, else call DownloadADBWin.py
-            os.system('platform-tools\\adb.exe usb')
-            if not os.path.exists("platform-tools"):
-                DownloadADBWin.Download()
-            # init install subroutine
-
-        # MacOs
-        elif(platform.system() == "Darwin"):
-            # init install subroutine
-            print("tbd")
-        else:
-            print("err")
-
-    def DrawGUI(self):
-        a = wx.App()
-        window = wx.Frame(None, title="Android Screen Control Server")
-        # create a panel in the frame
-        pnl = wx.Panel(window)
-        # put some text with a larger bold font on it
-        st = wx.StaticText(pnl, label="debug")
-        font = st.GetFont()
-        font.PointSize += 10
-        font = font.Bold()
-        st.SetFont(font)
-
-        window.Show()
-        a.MainLoop()
-
-    def main(self):
-        print(self.config['DEFAULT']['HideWindow'])
-        self.CheckVer()
-        windowThread = threading.Thread(target=self.DrawGUI(), args=(1,))
+        windowThread = threading.Thread(target=self.StartGUI)
         windowThread.start()
+
+    def StartGUI(self):
+        # GUI
+        app = wx.App()
+        frm = GUIDrawer.GUIDrawer(
+            self, None, title='Android Screen Control Server')
+        frm.Show()
+        app.MainLoop()
 
 
 if __name__ == '__main__':
+    # Reads userconfig(config.ini) and passes it to ASCS obj
     config = configparser.ConfigParser()
-    config['DEFAULT'] = {'HideWindow': 'false'}
-
+    config['DEFAULT'] = {'': ''}
     config.read('config.ini')
 
-    ascs = ASCS(config)
+    main = MainConnector(config)
