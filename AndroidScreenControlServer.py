@@ -18,19 +18,28 @@ class MainConnector:
         super(MainConnector, self)
         self.config = config
 
+        # Objects get set after all functions executed (time dependant)
+        self.GUI = None
+
         # ADBHelper
-        adbhelper = ADBHelper.ADBHelper(self)
+        self.adbThread = threading.Thread(target=self.StartADBHelper)
+        self.adbThread.start()
 
-        windowThread = threading.Thread(target=self.StartGUI)
-        windowThread.start()
+        # window thread is main thread
+        self.StartGUI()
 
+    # GUI
     def StartGUI(self):
-        # GUI
         app = wx.App()
         frm = GUIDrawer.GUIDrawer(
             self, None, title='Android Screen Control Server')
         frm.Show()
         app.MainLoop()
+        self.GUI = frm
+
+    # ADBHelper
+    def StartADBHelper(self):
+        ADBHelper.ADBHelper(self)
 
 
 if __name__ == '__main__':
@@ -39,7 +48,10 @@ if __name__ == '__main__':
 
     # Sets default config, if ini is missing
     config['SETTINGS'] = {
-        'ADB_Platform_Tools_URL': 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip'}
+        'ADB_Platform_Tools_URL': 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip',
+        'Close_ADBServer_OnExit': True,
+        'Dont_Check_For_ADBServer': False
+    }
 
     # Overwrites local config with file (if exists)
     config.read('config.ini')
