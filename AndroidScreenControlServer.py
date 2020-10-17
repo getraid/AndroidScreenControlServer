@@ -17,27 +17,26 @@ class MainConnector:
     def __init__(self, config):
         super(MainConnector, self)
         self.config = config
-
-        # Objects get set after all functions executed (time dependant)
-        self.GUI = None
-
-        # ADBHelper
-        self.adbThread = threading.Thread(target=self.StartADBHelper)
-        self.adbThread.start()
-
-        # window thread is main thread
+        self.guiDict = {"ADB_Status": False}
         self.StartGUI()
 
-    # GUI
+    # Basic GUI settings and MainConnector.GUI creation
     def StartGUI(self):
         app = wx.App()
         frm = GUIDrawer.GUIDrawer(
             self, None, title='Android Screen Control Server')
         frm.Show()
-        app.MainLoop()
         self.GUI = frm
+        self.AfterGUIInit()
+        app.MainLoop()
 
-    # ADBHelper
+    # In this method other threads are started to update everything post gui creation
+    def AfterGUIInit(self):
+        # ADBHelper thread launch
+        self.adbThread = threading.Thread(target=self.StartADBHelper)
+        self.adbThread.start()
+
+    # For ADBHelper thread
     def StartADBHelper(self):
         ADBHelper.ADBHelper(self)
 

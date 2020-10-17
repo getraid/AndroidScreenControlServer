@@ -22,6 +22,9 @@ class GUIDrawer(wx.Frame):
 
         # put some text with a larger bold font on it
         st = wx.StaticText(pnl, label="debug")
+        # TODO: Set Text dynamically
+        self.st1 = wx.StaticText(pnl, label="Status ADB: " +
+                                 str(self.connectorRef.guiDict['ADB_Status']))
         font = st.GetFont()
         font.PointSize += 10
         font = font.Bold()
@@ -30,6 +33,7 @@ class GUIDrawer(wx.Frame):
         # and create a sizer to manage the layout of child widgets
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(st, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
+        sizer.Add(self.st1, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
         pnl.SetSizer(sizer)
 
         # create a menu bar

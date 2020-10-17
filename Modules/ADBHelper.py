@@ -69,7 +69,13 @@ class ADBHelper:
             checkADB = str(
                 self.connectorRef.config['SETTINGS']['Dont_Check_For_ADBServer'])
             if (not checkADB.lower() == 'true'):
-                self.ADBRunningWin(result)
+                self.connectorRef.guiDict['ADB_Status'] = self.ADBRunningWin(
+                    result)
+
+                # TODO: Use update instead of calling each time
+                # https://stackoverflow.com/questions/14698631/wxpython-statictext-dynamic-update
+                self.connectorRef.GUI.st1.SetLabel(
+                    "Status ADB: " + str(self.connectorRef.guiDict['ADB_Status']))
         # Linux and MacOs are planned, but I firstly want to focus on the Windows version
         # -------------------------------------------
         # # Linux
