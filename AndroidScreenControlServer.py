@@ -14,10 +14,14 @@ import Modules.ADBHelper as ADBHelper
 
 
 class MainConnector:
+    """Connects every component together.
+    Also starts GUI and other necessary sub-threads"""
+
     def __init__(self, config):
         super(MainConnector, self)
         self.config = config
-        self.guiDict = {"ADB_Status": False}
+        self.guiDict = {"ADB_Status": False, "ConnectedDeviceName": ''}
+
         self.StartGUI()
 
     # Basic GUI settings and MainConnector.GUI creation
@@ -38,7 +42,7 @@ class MainConnector:
 
     # For ADBHelper thread
     def StartADBHelper(self):
-        ADBHelper.ADBHelper(self)
+        self.ADBHelper = ADBHelper.ADBHelper(self)
 
 
 if __name__ == '__main__':
