@@ -2,8 +2,10 @@
 import atexit
 # pip packages
 import wx
+import sys
 
 
+# Mostly generated with wxGlade
 class GUIDrawer(wx.Frame):
     """Draws GUI ...obviously"""
 
@@ -15,87 +17,103 @@ class GUIDrawer(wx.Frame):
         self.connectorRef = connector
 
         # METHODS
-        self.InitializeWindow()
+        self.InitializeWindow(**kw)
 
-    def InitializeWindow(self):
-        # create a panel in the frame
-        pnl = wx.Panel(self)
+    def InitializeWindow(self, **kw):
 
-        # put some text with a larger bold font on it
-        st = wx.StaticText(pnl, label="debug")
-        # TODO: Set Text dynamically
-        self.st1 = wx.StaticText(pnl, label="Status ADB: " +
-                                 str(self.connectorRef.guiDict['ADB_Status']))
+        kw["style"] = kw.get("style", 0) | wx.DEFAULT_FRAME_STYLE
 
-        font = st.GetFont()
-        font.PointSize += 10
-        font = font.Bold()
-        st.SetFont(font)
+        self.SetSize((700, 400))
+        self.Tabs = wx.Notebook(self, wx.ID_ANY)
+        self.StartPane = wx.Panel(self.Tabs, wx.ID_ANY)
+        self.Logger = wx.TextCtrl(self.StartPane, wx.ID_ANY, "",
+                                  style=wx.TE_MULTILINE | wx.TE_READONLY | wx.TE_WORDWRAP)
+        self.LayoutPane = wx.Panel(self.Tabs, wx.ID_ANY)
+        sys.stdout = self.Logger
 
-        # and create a sizer to manage the layout of child widgets
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(st, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
-        sizer.Add(self.st1, wx.SizerFlags().Border(wx.TOP | wx.LEFT, 25))
-        # sizer.Add(self.devices)
-        pnl.SetSizer(sizer)
+        self.frame_menubar = wx.MenuBar()
+        wx_menubar = wx.Menu()
+        item = wx_menubar.Append(
+            wx.ID_ANY, "Restart Webserver", "Restarts the included webserver")
+        self.Bind(wx.EVT_MENU, self.on_menu_Restart_Webserver, id=item.GetId())
+        wx_menubar.AppendSeparator()
+        item = wx_menubar.Append(
+            wx.ID_ANY, "Restart ADB", "Restarts ADB Server")
+        self.Bind(wx.EVT_MENU, self.on_menu_Restart_ADB, id=item.GetId())
+        item = wx_menubar.Append(
+            wx.ID_ANY, "Reconnect ADB Port", "Creates internal reverse proxy through USB")
+        self.Bind(wx.EVT_MENU, self.on_menu_Restart_ADB_Port, id=item.GetId())
+        item = wx_menubar.Append(
+            wx.ID_ANY, "Stop ADB", "Stops ADB Server")
+        self.Bind(wx.EVT_MENU, self.on_menu_Stop_ADB, id=item.GetId())
+        wx_menubar.AppendSeparator()
+        item = wx_menubar.Append(
+            wx.ID_ANY, "Minimize to Tray", "Minimizes window to system tray")
+        self.Bind(wx.EVT_MENU, self.on_menu_Minimize_To_Tray, id=item.GetId())
+        item = wx_menubar.Append(
+            wx.ID_ANY, "Exit", "Stops all servers and closes the program.")
+        self.Bind(wx.EVT_MENU, self.on_menu_File_Exit, id=item.GetId())
+        self.frame_menubar.Append(wx_menubar, "Quick Options")
+        self.SetMenuBar(self.frame_menubar)
 
-        # create a menu bar
-        self.MakeMenuBar()
+        self.__set_properties()
+        self.__do_layout()
 
-        # and a status bar
-        self.CreateStatusBar()
-        self.SetStatusText("Welcome to wxPython!")
+    def __set_properties(self):
+        self.SetTitle("frame")
+        self.Logger.SetBackgroundColour(wx.Colour(88, 88, 88))
+        self.Logger.SetForegroundColour(wx.Colour(255, 255, 255))
+        self.Logger.SetFont(wx.Font(10, wx.FONTFAMILY_MODERN,
+                                    wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Courier"))
 
-    def MakeMenuBar(self):
-        """
-        A menu bar is composed of menus, which are composed of menu items.
-        This method builds a set of menus and binds handlers to be called
-        when the menu item is selected.
-        """
+    def __do_layout(self):
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        startPaneSplitter = wx.BoxSizer(wx.VERTICAL)
+        startPaneGrid = wx.GridSizer(8, 2, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneGrid.Add((0, 0), 0, 0, 0)
+        startPaneSplitter.Add(startPaneGrid, 2, wx.EXPAND, 0)
+        startPaneSplitter.Add(self.Logger, 1, wx.EXPAND, 0)
+        self.StartPane.SetSizer(startPaneSplitter)
+        self.Tabs.AddPage(self.StartPane, "Start")
+        self.Tabs.AddPage(self.LayoutPane, "Layout")
+        mainSizer.Add(self.Tabs, 1, wx.EXPAND, 0)
+        self.SetSizer(mainSizer)
+        self.Layout()
 
-        # Make a file menu with Hello and Exit items
-        fileMenu = wx.Menu()
-        # The "\t..." syntax defines an accelerator key that also triggers
-        # the same event
-        helloItem = fileMenu.Append(-1, "&Hello...\tCtrl-H",
-                                    "Help string shown in status bar for this menu item")
-        fileMenu.AppendSeparator()
-        # When using a stock ID we don't need to specify the menu item's
-        # label
-        exitItem = fileMenu.Append(wx.ID_EXIT)
+    def on_menu_Restart_Webserver(self, event):
+        print("Event handler 'on_menu_Restart_Webserver' not implemented!")
+        event.Skip()
 
-        # Now a help menu for the about item
-        helpMenu = wx.Menu()
-        aboutItem = helpMenu.Append(wx.ID_ABOUT)
+    def on_menu_Restart_ADB(self, event):
+        print("Event handler 'on_menu_Restart_ADB' not implemented!")
+        event.Skip()
 
-        # Make the menu bar and add the two menus to it. The '&' defines
-        # that the next letter is the "mnemonic" for the menu item. On the
-        # platforms that support it those letters are underlined and can be
-        # triggered from the keyboard.
-        menuBar = wx.MenuBar()
-        menuBar.Append(fileMenu, "&File")
-        menuBar.Append(helpMenu, "&Help")
+    def on_menu_Restart_ADB_Port(self, event):
+        print("Event handler 'on_menu_Restart_ADB_Port' not implemented!")
+        event.Skip()
 
-        # Give the menu bar to the frame
-        self.SetMenuBar(menuBar)
+    def on_menu_Stop_ADB(self, event):
+        print("Event handler 'on_menu_Stop_ADB' not implemented!")
+        event.Skip()
 
-        # Finally, associate a handler function with the EVT_MENU event for
-        # each of the menu items. That means that when that menu item is
-        # activated then the associated handler function will be called.
-        self.Bind(wx.EVT_MENU, self.OnHello, helloItem)
-        self.Bind(wx.EVT_MENU, self.OnExit,  exitItem)
-        self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
+    def on_menu_Minimize_To_Tray(self, event):
+        print("Event handler 'on_menu_Minimize_To_Tray' not implemented!")
+        event.Skip()
 
-    def OnExit(self, event):
-        """Close the frame, terminating the application."""
+    def on_menu_File_Exit(self, event):
         self.Close(True)
-
-    def OnHello(self, event):
-        """Say hello to the user."""
-        wx.MessageBox("Hello again from wxPython")
-
-    def OnAbout(self, event):
-        """Display an About Dialog"""
-        wx.MessageBox("This is a wxPython Hello World sample",
-                      "About Hello World 2",
-                      wx.OK | wx.ICON_INFORMATION)

@@ -1,7 +1,6 @@
 # native
 import os
 import platform
-import threading
 import atexit
 
 # pip packages
@@ -9,8 +8,11 @@ import wx
 import configparser
 
 # custom modules
+import Modules.CustomThread as CustomThread
 import Modules.GUIDrawer as GUIDrawer
 import Modules.ADBHelper as ADBHelper
+import Modules.Webserver as Webserver
+import time
 
 
 class MainConnector:
@@ -37,12 +39,27 @@ class MainConnector:
     # In this method other threads are started to update everything post gui creation
     def AfterGUIInit(self):
         # ADBHelper thread launch
-        self.adbThread = threading.Thread(target=self.StartADBHelper)
+        self.adbThread = CustomThread.Thread(target=self.StartADBHelper)
+        self.webThread = CustomThread.Thread(target=self.StartWebserver)
+        self.webThread.daemon = True
+
         self.adbThread.start()
+        self.webThread.start()
+
+        # time.sleep(5)
+        # self.webThread.terminate()
 
     # For ADBHelper thread
+
     def StartADBHelper(self):
         self.ADBHelper = ADBHelper.ADBHelper(self)
+
+    # For ADBHelper thread
+    def StartWebserver(self):
+        # TODO: define host & port in settings
+        print("Webserver is starting on 'http://localhost:8091'...")
+        self.server = Webserver.Webserver(host='localhost', port=8091)
+        self.server.start()
 
 
 if __name__ == '__main__':
