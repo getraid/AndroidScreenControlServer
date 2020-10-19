@@ -1,2 +1,2 @@
 @echo off
-start "" python "AndroidScreenControlServer.py"
+start "" python3 "AndroidScreenControlServer.py"

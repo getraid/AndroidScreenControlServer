@@ -70,7 +70,8 @@ if __name__ == '__main__':
     config['SETTINGS'] = {
         'ADB_Platform_Tools_URL': 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip',
         'Close_ADBServer_OnExit': True,
-        'Dont_Check_For_ADBServer': False
+        'Dont_Check_For_ADBServer': False,
+        'Start_Min_Sized': False
     }
 
     # Overwrites local config with file (if exists)

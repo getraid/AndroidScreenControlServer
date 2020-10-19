@@ -1,2 +1,2 @@
 @echo off
-start "" pip install -r "requirements.txt"
+start "" pip3 install -r "requirements.txt"
