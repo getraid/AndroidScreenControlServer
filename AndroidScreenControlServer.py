@@ -36,21 +36,42 @@ class MainConnector:
         self.AfterGUIInit()
         app.MainLoop()
 
+    # debug
+    # def SeeThreads(self):
+    #     for obj in gc.get_objects():
+    #         if isinstance(obj, Webserver.Webserver):
+    #             print(obj.name)
+
     # In this method other threads are started to update everything post gui creation
+
     def AfterGUIInit(self):
+        self.StartADBThread()
+        self.StartWebThread()
+
+    def RestartWebserverThread(self):
+        tmp = CustomThread.Thread(target=self.RestartWebserver)
+        tmp.start()
+
+    # TODO: Duplicate code. Needs refactor
+    def RestartWebserver(self):
+        self.server.stop()
+        if(self.webThread.is_alive()):
+            self.webThread.terminate()
+        time.sleep(3)
+        if(not self.webThread.is_alive()):
+            self.StartWebThread()
+
+    def StartADBThread(self):
         # ADBHelper thread launch
         self.adbThread = CustomThread.Thread(target=self.StartADBHelper)
+        self.adbThread.start()
+
+    def StartWebThread(self):
         self.webThread = CustomThread.Thread(target=self.StartWebserver)
         self.webThread.daemon = True
-
-        self.adbThread.start()
         self.webThread.start()
 
-        # time.sleep(5)
-        # self.webThread.terminate()
-
     # For ADBHelper thread
-
     def StartADBHelper(self):
         self.ADBHelper = ADBHelper.ADBHelper(self)
 
@@ -58,8 +79,9 @@ class MainConnector:
     def StartWebserver(self):
         # TODO: define host & port in settings
         print("Webserver is starting on 'http://localhost:8091'...")
-        self.server = Webserver.Webserver(host='localhost', port=8091)
-        self.server.start()
+        self.server = Webserver.MyWSGIRefServer(host='localhost', port=8091)
+        self.wserver = Webserver.Webserver(server=self.server)
+        self.wserver.start()
 
 
 if __name__ == '__main__':

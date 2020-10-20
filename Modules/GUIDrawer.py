@@ -31,6 +31,31 @@ class GUIDrawer(wx.Frame):
             self.SetSize((700, 400))
 
         self.SetMinSize((350, 200))
+        self.frame_menubar = wx.MenuBar()
+        wxglade_tmp_menu = wx.Menu()
+        item = wxglade_tmp_menu.Append(
+            wx.ID_ANY, "Restart Webserver", "Restarts the included webserver")
+        self.Bind(wx.EVT_MENU, self.onRestartWebserver, id=item.GetId())
+        wxglade_tmp_menu.AppendSeparator()
+        item = wxglade_tmp_menu.Append(
+            wx.ID_ANY, "Restart ADB", "Restarts ADB Server")
+        self.Bind(wx.EVT_MENU, self.onRestartADB, id=item.GetId())
+        item = wxglade_tmp_menu.Append(
+            wx.ID_ANY, "Reconnect ADB Port", "Creates internal reverse proxy through USB")
+        self.Bind(wx.EVT_MENU, self.onRestartADBPort, id=item.GetId())
+        item = wxglade_tmp_menu.Append(
+            wx.ID_ANY, "Stop ADB", "Stops ADB Server")
+        self.Bind(wx.EVT_MENU, self.onStopADB, id=item.GetId())
+        wxglade_tmp_menu.AppendSeparator()
+        item = wxglade_tmp_menu.Append(
+            wx.ID_ANY, "Minimize to Tray", "Minimizes window to system tray")
+        self.Bind(wx.EVT_MENU, self.onMinimizeToTray, id=item.GetId())
+        item = wxglade_tmp_menu.Append(
+            wx.ID_ANY, "Exit", "Stops all servers and closes the program.")
+        self.Bind(wx.EVT_MENU, self.onExitCmd, id=item.GetId())
+        self.frame_menubar.Append(wxglade_tmp_menu, "Quick Options")
+        self.SetMenuBar(self.frame_menubar)
+        # Menu Bar end
         self.Tabs = wx.Notebook(self, wx.ID_ANY)
         self.StartPane = wx.Panel(self.Tabs, wx.ID_ANY)
         self.Logger = wx.TextCtrl(
@@ -55,36 +80,23 @@ class GUIDrawer(wx.Frame):
         self.exitSrvCtrlBtn = wx.Button(self.ServerCtrl, wx.ID_EXIT, "")
         self.LayoutPane = wx.Panel(self.Tabs, wx.ID_ANY)
 
-        self.frame_menubar = wx.MenuBar()
-        wx_menubar = wx.Menu()
-        item = wx_menubar.Append(
-            wx.ID_ANY, "Restart Webserver", "Restarts the included webserver")
-        self.Bind(wx.EVT_MENU, self.on_menu_Restart_Webserver, id=item.GetId())
-        wx_menubar.AppendSeparator()
-        item = wx_menubar.Append(
-            wx.ID_ANY, "Restart ADB", "Restarts ADB Server")
-        self.Bind(wx.EVT_MENU, self.on_menu_Restart_ADB, id=item.GetId())
-        item = wx_menubar.Append(
-            wx.ID_ANY, "Reconnect ADB Port", "Creates internal reverse proxy through USB")
-        self.Bind(wx.EVT_MENU, self.on_menu_Restart_ADB_Port, id=item.GetId())
-        item = wx_menubar.Append(
-            wx.ID_ANY, "Stop ADB", "Stops ADB Server")
-        self.Bind(wx.EVT_MENU, self.on_menu_Stop_ADB, id=item.GetId())
-        wx_menubar.AppendSeparator()
-        item = wx_menubar.Append(
-            wx.ID_ANY, "Minimize to Tray", "Minimizes window to system tray")
-        self.Bind(wx.EVT_MENU, self.on_menu_Minimize_To_Tray, id=item.GetId())
-        item = wx_menubar.Append(
-            wx.ID_ANY, "Exit", "Stops all servers and closes the program.")
-        self.Bind(wx.EVT_MENU, self.on_menu_File_Exit, id=item.GetId())
-        self.frame_menubar.Append(wx_menubar, "Quick Options")
-        self.SetMenuBar(self.frame_menubar)
-
         # Sets stdout to logger textctrl
         sys.stdout = self.Logger
 
         self.__set_properties()
         self.__do_layout()
+
+        self.Bind(wx.EVT_BUTTON, self.onRestartWebserver,
+                  self.restartWebSrvBtn)
+        self.Bind(wx.EVT_BUTTON, self.onStopWebserver, self.stopWebSrvBtn)
+        self.Bind(wx.EVT_BUTTON, self.onStartWebserver, self.startWebSrvBtn)
+        self.Bind(wx.EVT_BUTTON, self.onRestartADB, self.restartAdbBtn)
+        self.Bind(wx.EVT_BUTTON, self.onStopADB, self.stopAdbBtn)
+        self.Bind(wx.EVT_BUTTON, self.onStartADB, self.startAdbBtn)
+        self.Bind(wx.EVT_BUTTON, self.onRestartADBPort,
+                  self.restartAdbTunnelBtn)
+        self.Bind(wx.EVT_BUTTON, self.onMinimizeToTray, self.minimizeToTrayBtn)
+        self.Bind(wx.EVT_BUTTON, self.onExitCmd, self.exitSrvCtrlBtn)
 
     def __set_properties(self):
         self.SetTitle("Android Screen Control Server")
@@ -102,6 +114,7 @@ class GUIDrawer(wx.Frame):
         self.reloadPluginsBtn.SetBackgroundColour(wx.Colour(255, 198, 53))
 
     def __do_layout(self):
+        # begin wxGlade: GUIDrawer.__do_layout
         mainSizer = wx.BoxSizer(wx.VERTICAL)
         grid_sizer_4 = wx.GridSizer(5, 3, 0, 0)
         startPaneSplitter = wx.BoxSizer(wx.VERTICAL)
@@ -214,26 +227,40 @@ class GUIDrawer(wx.Frame):
         mainSizer.Add(self.Tabs, 1, wx.EXPAND, 0)
         self.SetSizer(mainSizer)
         self.Layout()
+        # end wxGlade
 
-    def on_menu_Restart_Webserver(self, event):
-        print("Event handler 'on_menu_Restart_Webserver' not implemented!")
+    def onRestartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        self.connectorRef.RestartWebserverThread()
+
+    def onRestartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        print("Event handler 'onRestartADB' not implemented!")
         event.Skip()
 
-    def on_menu_Restart_ADB(self, event):
-        print("Event handler 'on_menu_Restart_ADB' not implemented!")
+    def onRestartADBPort(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        print("Event handler 'onRestartADBPort' not implemented!")
         event.Skip()
 
-    def on_menu_Restart_ADB_Port(self, event):
-        print("Event handler 'on_menu_Restart_ADB_Port' not implemented!")
+    def onStopADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        print("Event handler 'onStopADB' not implemented!")
         event.Skip()
 
-    def on_menu_Stop_ADB(self, event):
-        print("Event handler 'on_menu_Stop_ADB' not implemented!")
+    def onMinimizeToTray(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        print("Event handler 'onMinimizeToTray' not implemented!")
         event.Skip()
 
-    def on_menu_Minimize_To_Tray(self, event):
-        print("Event handler 'on_menu_Minimize_To_Tray' not implemented!")
-        event.Skip()
-
-    def on_menu_File_Exit(self, event):
+    def onExitCmd(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.Close(True)
+
+    def onStopWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        self.connectorRef.server.stop()
+        if(self.connectorRef.webThread.is_alive()):
+            self.connectorRef.webThread.terminate()
+        print("Webserver is stopping...")
+
+    def onStartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        if(not self.connectorRef.webThread.is_alive()):
+            self.connectorRef.StartWebThread()
+
+    def onStartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
+        print("Event handler 'onStartADB' not implemented!")
+        event.Skip()
