@@ -13,6 +13,7 @@ import Modules.GUIDrawer as GUIDrawer
 import Modules.ADBHelper as ADBHelper
 import Modules.Webserver as Webserver
 import time
+import gc
 
 
 class MainConnector:
@@ -22,7 +23,8 @@ class MainConnector:
     def __init__(self, config):
         super(MainConnector, self)
         self.config = config
-        self.guiDict = {"ADB_Status": False, "ConnectedDeviceName": ''}
+        self.guiDict = {"ADB_Status": False,
+                        "ConnectedDeviceName": '', "ADB_Tunnel": False, 'Webserver_Status': False}
 
         self.StartGUI()
 
@@ -36,17 +38,32 @@ class MainConnector:
         self.AfterGUIInit()
         app.MainLoop()
 
-    # debug
-    # def SeeThreads(self):
-    #     for obj in gc.get_objects():
-    #         if isinstance(obj, Webserver.Webserver):
-    #             print(obj.name)
-
-    # In this method other threads are started to update everything post gui creation
-
+    # In this method other threads are started to update/start everything post gui creation
     def AfterGUIInit(self):
-        self.StartADBThread()
+        afterGUIInitThread = CustomThread.Thread(
+            target=self.AfterGUIInitThread)
+        afterGUIInitThread.start()
+
+    # Ensures that ADB is run first, to download necessary files
+    def AfterGUIInitThread(self):
+        adbThread = CustomThread.Thread(target=self.StartADBHelper)
+        adbThread.start()
+        adbThread.join()
         self.StartWebThread()
+
+    # For ADBHelper thread
+    def StartADBHelper(self):
+        self.ADBHelper = ADBHelper.ADBHelper(self)
+
+    # ADBHelper thread launch by button
+    def StartADBThread(self):
+        self.adbThread = CustomThread.Thread(target=self.StartADBHelper)
+        self.adbThread.start()
+
+    def StartWebThread(self):
+        self.webThread = CustomThread.Thread(target=self.StartWebserver)
+        self.webThread.daemon = True
+        self.webThread.start()
 
     def RestartWebserverThread(self):
         tmp = CustomThread.Thread(target=self.RestartWebserver)
@@ -61,25 +78,16 @@ class MainConnector:
         if(not self.webThread.is_alive()):
             self.StartWebThread()
 
-    def StartADBThread(self):
-        # ADBHelper thread launch
-        self.adbThread = CustomThread.Thread(target=self.StartADBHelper)
-        self.adbThread.start()
+    def SeeThreads(self):
+        for obj in gc.get_objects():
+            if isinstance(obj, Webserver.Webserver):
+                print(obj.name)
 
-    def StartWebThread(self):
-        self.webThread = CustomThread.Thread(target=self.StartWebserver)
-        self.webThread.daemon = True
-        self.webThread.start()
-
-    # For ADBHelper thread
-    def StartADBHelper(self):
-        self.ADBHelper = ADBHelper.ADBHelper(self)
-
-    # For ADBHelper thread
     def StartWebserver(self):
+        port = str(self.config['SETTINGS']['WebserverPort'])
         # TODO: define host & port in settings
-        print("Webserver is starting on 'http://localhost:8091'...")
-        self.server = Webserver.MyWSGIRefServer(host='localhost', port=8091)
+        print("Webserver is starting on 'http://localhost:"+port+"'...")
+        self.server = Webserver.MyWSGIRefServer(host='localhost', port=port)
         self.wserver = Webserver.Webserver(server=self.server)
         self.wserver.start()
 
@@ -93,7 +101,11 @@ if __name__ == '__main__':
         'ADB_Platform_Tools_URL': 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip',
         'Close_ADBServer_OnExit': True,
         'Dont_Check_For_ADBServer': False,
-        'Start_Min_Sized': False
+        'Start_Min_Sized': False,
+        'Wait_For_Device': True,
+        'ADBTunnelHostPort': 8000,
+        'ADBTunnelClientPort': 8000,
+        'WebserverPort':8000
     }
 
     # Overwrites local config with file (if exists)

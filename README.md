@@ -11,3 +11,6 @@ Make sure to use `python AndroidScreenControlServer.py` instead of `py AndroidSc
 To disable console output, rename file from `AndroidScreenControlServer.py` to `AndroidScreenControlServer.pyw`
 
 tbd...
+
+Issues:
+* Upon stopping server, bunch of errors are thrown. Haven't figured out why yet

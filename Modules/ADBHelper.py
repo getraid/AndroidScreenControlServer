@@ -31,8 +31,9 @@ class ADBHelper:
             os.system('mkdir Modules')
         url = str(
             self.connectorRef.config['SETTINGS']['ADB_Platform_Tools_URL'])
-        print("Can not find platform-tools folder. Downloading from: " + url)
+        print("Can not find platform-tools folder.\nDownloading...")
         dload.save_unzip(url, ".")
+        print("Download completed.")
 
     # Searches in tasklist if adb.exe is there.
     # https://stackoverflow.com/a/29275361
@@ -79,7 +80,21 @@ class ADBHelper:
             if (not checkADB.lower() == 'true'):
                 self.connectorRef.guiDict['ADB_Status'] = self.ADBRunningWin(
                     result)
+                self.connectorRef.GUI.UpdateGUI()
 
+                waitfordevice = str(
+                    self.connectorRef.config['SETTINGS']['Wait_For_Device'])
+                if(waitfordevice.lower() == 'true'):
+                    self.WaitForDeviceWin()
+                    self.connectorRef.guiDict['ConnectedDeviceName'] = self.GetDeviceWin(
+                    )
+                    self.connectorRef.guiDict['ADB_Tunnel'] = self.EstConnectionWin(str(self.connectorRef.config['SETTINGS']['ADBTunnelHostPort']),  str(
+                        self.connectorRef.config['SETTINGS']['ADBTunnelClientPort']))
+                    self.connectorRef.GUI.UpdateGUI()
+                else:
+                    self.connectorRef.guiDict['ConnectedDeviceName'] = self.GetDeviceWin(
+                    )
+                    self.connectorRef.GUI.UpdateGUI()
                 # TODO: Use update instead of calling each time
                 # https://stackoverflow.com/questions/14698631/wxpython-statictext-dynamic-update
                 # self.connectorRef.GUI.st1.SetLabel(
@@ -97,15 +112,25 @@ class ADBHelper:
         # else:
         #     print("err")
 
+    def WaitForDeviceWin(self):
+        print("Connect your android device with ADB developer usb settings enabled now.\nWaiting for device... ")
+        os.system('platform-tools\\adb.exe wait-for-device')
+
     def GetDeviceWin(self):
         result = subprocess.getoutput(
             'platform-tools\\adb.exe shell getprop ro.product.model')
-        return print(result)
+        print(result)
+        return result
 
-    def EstConnectionWin(self):
-        os.system(
-            'platform-tools\\adb.exe reverse tcp:8000 tcp:8000')
-        pass
+    def EstConnectionWin(self, portHost, portDevice):
+        result = subprocess.getoutput(
+            'platform-tools\\adb.exe reverse tcp:' + portHost + ' tcp:' + portDevice)
+        if(result == ''):
+            print("ADB Tunnel established")
+            return True
+        else:
+            print(result)
+            return False
 
     # If window has been closed, kill adb server
     def OnExit(self):
@@ -116,4 +141,3 @@ class ADBHelper:
                 os.system('platform-tools\\adb.exe kill-server')
             else:
                 os.system('adb kill-server')
-            print("Stopped ADB Server.")

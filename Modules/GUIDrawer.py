@@ -127,27 +127,27 @@ class GUIDrawer(wx.Frame):
             self.StartPane, wx.ID_ANY, "ADB Server:", style=wx.ALIGN_RIGHT)
         grid_sizer_3.Add(
             adbServerLbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
-        adbServerStatusLbl = wx.StaticText(
+        self.adbServerStatusLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "Stopped", style=wx.ALIGN_LEFT)
-        adbServerStatusLbl.SetForegroundColour(wx.Colour(207, 99, 99))
-        grid_sizer_3.Add(adbServerStatusLbl, 0,
+        self.adbServerStatusLbl.SetForegroundColour(wx.Colour(207, 99, 99))
+        grid_sizer_3.Add(self.adbServerStatusLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
         deviceLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "Device:", style=wx.ALIGN_RIGHT)
         grid_sizer_3.Add(
             deviceLbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
-        deviceStatusLbl = wx.StaticText(
+        self.deviceStatusLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "<none>", style=wx.ALIGN_LEFT)
-        grid_sizer_3.Add(deviceStatusLbl, 0,
+        grid_sizer_3.Add(self.deviceStatusLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
         adbTunnelLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "ADB Tunnel:", style=wx.ALIGN_RIGHT)
         grid_sizer_3.Add(
             adbTunnelLbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
-        adbTunnelStatusLbl = wx.StaticText(
+        self.adbTunnelStatusLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "Stopped", style=wx.ALIGN_LEFT)
-        adbTunnelStatusLbl.SetForegroundColour(wx.Colour(207, 99, 99))
-        grid_sizer_3.Add(adbTunnelStatusLbl, 0,
+        self.adbTunnelStatusLbl.SetForegroundColour(wx.Colour(207, 99, 99))
+        grid_sizer_3.Add(self.adbTunnelStatusLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
         pluginsLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "Plugins:", style=wx.ALIGN_RIGHT)
@@ -229,6 +229,35 @@ class GUIDrawer(wx.Frame):
         self.Layout()
         # end wxGlade
 
+    def UpdateGUI(self):
+        self.deviceStatusLbl.SetLabel(
+            str(self.connectorRef.guiDict['ConnectedDeviceName']))
+
+        self.SetStatus(self.adbTunnelStatusLbl, 'ADB_Tunnel')
+        self.SetStatus(self.adbServerStatusLbl, 'ADB_Status')
+
+    def SetStatus(self, lbl, dictEntry):
+        ret = self.GetRet(dictEntry)
+        lbl.SetLabel(ret)
+        lbl.SetForegroundColour(self.GetColor(ret))
+
+    def GetRet(self, guiDictEntry):
+        ret = "Running" if str(
+            self.connectorRef.guiDict[str(guiDictEntry)]).lower() == "true" else "Stopped"
+        return ret
+
+    def GetColor(self, ret):
+        if(ret == "Stopped"):
+            return wx.Colour(207, 99, 99)
+            # lbl.SetForegroundColour(colour=wx.Colour(207, 99, 99))
+        elif(ret == "Running"):
+            return wx.Colour(93, 207, 38)
+            # lbl.SetForegroundColour(colour=wx.Colour(93, 207, 38))
+        else:
+            return wx.Colour(0, 0, 0)
+            # lbl.SetForegroundColour(colour=wx.Colour(0, 0, 0))
+        # return lbl
+
     def onRestartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.connectorRef.RestartWebserverThread()
 
@@ -254,11 +283,15 @@ class GUIDrawer(wx.Frame):
     def onStopWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.connectorRef.server.stop()
         if(self.connectorRef.webThread.is_alive()):
+            self.connectorRef.guiDict['Webserver_Status'] = False
+            self.UpdateGUI()
             self.connectorRef.webThread.terminate()
         print("Webserver is stopping...")
 
     def onStartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
         if(not self.connectorRef.webThread.is_alive()):
+            self.connectorRef.guiDict['Webserver_Status'] = True
+            self.UpdateGUI()
             self.connectorRef.StartWebThread()
 
     def onStartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>

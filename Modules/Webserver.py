@@ -25,6 +25,8 @@ class Webserver:
 
 
 # https://stackoverflow.com/a/16056443
+# maybe replace with tornada.wsgi like this instead https://github.com/bottlepy/bottle/issues/636#issuecomment-47940562
+# to fix error below? Or just use another wsgi altogether
 class MyWSGIRefServer(ServerAdapter):
     server = None
     quiet = True
