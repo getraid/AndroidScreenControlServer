@@ -162,9 +162,9 @@ class GUIDrawer(wx.Frame):
             self.StartPane, wx.ID_ANY, "ADB Port:", style=wx.ALIGN_RIGHT)
         grid_sizer_3.Add(
             adbPortLbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
-        adbPortStatusLbl = wx.StaticText(
+        self.adbPortStatusLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "<none>", style=wx.ALIGN_LEFT)
-        grid_sizer_3.Add(adbPortStatusLbl, 0,
+        grid_sizer_3.Add(self.adbPortStatusLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
@@ -183,9 +183,9 @@ class GUIDrawer(wx.Frame):
             self.StartPane, wx.ID_ANY, "Webserver Host:", style=wx.ALIGN_RIGHT)
         grid_sizer_3.Add(webserverHostLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
-        webserverHostStatusLbl = wx.StaticText(
+        self.webserverHostStatusLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "<none>", style=wx.ALIGN_LEFT)
-        grid_sizer_3.Add(webserverHostStatusLbl, 0,
+        grid_sizer_3.Add(self.webserverHostStatusLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
@@ -193,9 +193,9 @@ class GUIDrawer(wx.Frame):
             self.StartPane, wx.ID_ANY, "Webserver Port:", style=wx.ALIGN_RIGHT)
         grid_sizer_3.Add(webserverPortLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
-        webserverPortStatusLbl = wx.StaticText(
+        self.webserverPortStatusLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "<none>", style=wx.ALIGN_LEFT)
-        grid_sizer_3.Add(webserverPortStatusLbl, 0,
+        grid_sizer_3.Add(self.webserverPortStatusLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
@@ -230,18 +230,27 @@ class GUIDrawer(wx.Frame):
         # end wxGlade
 
     def UpdateGUI(self):
-        self.deviceStatusLbl.SetLabel(
-            str(self.connectorRef.guiDict['ConnectedDeviceName']))
-
+        self.SetText(self.deviceStatusLbl, 'ConnectedDeviceName', False)
+        self.SetText(self.webserverHostStatusLbl, 'WebserverHost', True)
+        self.SetText(self.webserverPortStatusLbl, 'WebserverPort', True)
         self.SetStatus(self.adbTunnelStatusLbl, 'ADB_Tunnel')
         self.SetStatus(self.adbServerStatusLbl, 'ADB_Status')
 
+        self.adbPortStatusLbl.SetLabel(
+            str(self.connectorRef.config['SETTINGS']['ADBTunnelHostPort']) + "-" + str(self.connectorRef.config['SETTINGS']['ADBTunnelClientPort']))
+
+    def SetText(self, lbl, dictEntry, config):
+        if(config):
+            lbl.SetLabel(str(self.connectorRef.config['SETTINGS'][dictEntry]))
+        else:
+            lbl.SetLabel(str(self.connectorRef.guiDict[dictEntry]))
+
     def SetStatus(self, lbl, dictEntry):
-        ret = self.GetRet(dictEntry)
+        ret = self.GetRunning(dictEntry)
         lbl.SetLabel(ret)
         lbl.SetForegroundColour(self.GetColor(ret))
 
-    def GetRet(self, guiDictEntry):
+    def GetRunning(self, guiDictEntry):
         ret = "Running" if str(
             self.connectorRef.guiDict[str(guiDictEntry)]).lower() == "true" else "Stopped"
         return ret
@@ -249,14 +258,10 @@ class GUIDrawer(wx.Frame):
     def GetColor(self, ret):
         if(ret == "Stopped"):
             return wx.Colour(207, 99, 99)
-            # lbl.SetForegroundColour(colour=wx.Colour(207, 99, 99))
         elif(ret == "Running"):
             return wx.Colour(93, 207, 38)
-            # lbl.SetForegroundColour(colour=wx.Colour(93, 207, 38))
         else:
             return wx.Colour(0, 0, 0)
-            # lbl.SetForegroundColour(colour=wx.Colour(0, 0, 0))
-        # return lbl
 
     def onRestartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.connectorRef.RestartWebserverThread()

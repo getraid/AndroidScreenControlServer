@@ -88,8 +88,8 @@ class ADBHelper:
                     self.WaitForDeviceWin()
                     self.connectorRef.guiDict['ConnectedDeviceName'] = self.GetDeviceWin(
                     )
-                    self.connectorRef.guiDict['ADB_Tunnel'] = self.EstConnectionWin(str(self.connectorRef.config['SETTINGS']['ADBTunnelHostPort']),  str(
-                        self.connectorRef.config['SETTINGS']['ADBTunnelClientPort']))
+                    self.connectorRef.guiDict['ADB_Tunnel'] = self.EstConnectionWin(str(self.connectorRef.config['SETTINGS']['ADBTunnelClientPort']),  str(
+                        self.connectorRef.config['SETTINGS']['ADBTunnelHostPort']))
                     self.connectorRef.GUI.UpdateGUI()
                 else:
                     self.connectorRef.guiDict['ConnectedDeviceName'] = self.GetDeviceWin(

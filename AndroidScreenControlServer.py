@@ -24,7 +24,7 @@ class MainConnector:
         super(MainConnector, self)
         self.config = config
         self.guiDict = {"ADB_Status": False,
-                        "ConnectedDeviceName": '', "ADB_Tunnel": False, 'Webserver_Status': False}
+                        "ConnectedDeviceName": '<none>', "ADB_Tunnel": False, 'Webserver_Status': False}
 
         self.StartGUI()
 
@@ -40,15 +40,18 @@ class MainConnector:
 
     # In this method other threads are started to update/start everything post gui creation
     def AfterGUIInit(self):
+        self.GUI.UpdateGUI()
         afterGUIInitThread = CustomThread.Thread(
             target=self.AfterGUIInitThread)
         afterGUIInitThread.start()
 
     # Ensures that ADB is run first, to download necessary files
     def AfterGUIInitThread(self):
-        adbThread = CustomThread.Thread(target=self.StartADBHelper)
-        adbThread.start()
-        adbThread.join()
+        useADB = str(self.config['SETTINGS']['UseADB'])
+        if(useADB.lower() == 'true'):
+            adbThread = CustomThread.Thread(target=self.StartADBHelper)
+            adbThread.start()
+            adbThread.join()
         self.StartWebThread()
 
     # For ADBHelper thread
@@ -84,10 +87,11 @@ class MainConnector:
                 print(obj.name)
 
     def StartWebserver(self):
+        host = str(self.config['SETTINGS']['WebserverHost'])
         port = str(self.config['SETTINGS']['WebserverPort'])
         # TODO: define host & port in settings
-        print("Webserver is starting on 'http://localhost:"+port+"'...")
-        self.server = Webserver.MyWSGIRefServer(host='localhost', port=port)
+        print("Webserver is starting on 'http://"+host+":"+port+"'...")
+        self.server = Webserver.MyWSGIRefServer(host=host, port=port)
         self.wserver = Webserver.Webserver(server=self.server)
         self.wserver.start()
 
@@ -98,6 +102,7 @@ if __name__ == '__main__':
 
     # Sets default config, if ini is missing
     config['SETTINGS'] = {
+        'UseADB': True,
         'ADB_Platform_Tools_URL': 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip',
         'Close_ADBServer_OnExit': True,
         'Dont_Check_For_ADBServer': False,
@@ -105,7 +110,8 @@ if __name__ == '__main__':
         'Wait_For_Device': True,
         'ADBTunnelHostPort': 8000,
         'ADBTunnelClientPort': 8000,
-        'WebserverPort':8000
+        'WebserverHost': 'localhost',
+        'WebserverPort': 8000
     }
 
     # Overwrites local config with file (if exists)

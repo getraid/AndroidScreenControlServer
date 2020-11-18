@@ -140,3 +140,5 @@ cython_debug/
 
 platform-tools/
 dist/
+
+platform-tools-latest-windows.zip
