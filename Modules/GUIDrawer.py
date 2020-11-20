@@ -2,10 +2,14 @@
 import atexit
 # pip packages
 import wx
+import wx.adv
 import sys
-
+import Modules.GUISystemtray as GUISystemtray
+import os
 
 # Mostly generated with wxGlade
+
+
 class GUIDrawer(wx.Frame):
     """Draws GUI ...obviously"""
 
@@ -17,20 +21,30 @@ class GUIDrawer(wx.Frame):
         self.connectorRef = connector
 
         # METHODS
+
         self.InitializeWindow(**kw)
 
     def InitializeWindow(self, **kw):
 
         kw["style"] = kw.get("style", 0) | wx.DEFAULT_FRAME_STYLE
 
+        icon = wx.Icon()
+        try:
+            icon.CopyFromBitmap(
+                wx.Bitmap(os.getcwd() + "/Assets/icon.png", wx.BITMAP_TYPE_ANY))
+        except:
+            print("Icon not found, will use empty icon.")
+
+        self.SetIcon(icon)
+
         # If setting of Start_Min_Sized true, window will start up in a small size
         sizeOpt = str(self.connectorRef.config['SETTINGS']['Start_Min_Sized'])
         if (sizeOpt.lower() == 'true'):
-            self.SetSize((350, 200))
+            self.SetSize((370, 250))
         else:
             self.SetSize((700, 400))
 
-        self.SetMinSize((350, 200))
+        self.SetMinSize((370, 250))
         self.frame_menubar = wx.MenuBar()
         wxglade_tmp_menu = wx.Menu()
         item = wxglade_tmp_menu.Append(
@@ -97,6 +111,12 @@ class GUIDrawer(wx.Frame):
                   self.restartAdbTunnelBtn)
         self.Bind(wx.EVT_BUTTON, self.onMinimizeToTray, self.minimizeToTrayBtn)
         self.Bind(wx.EVT_BUTTON, self.onExitCmd, self.exitSrvCtrlBtn)
+
+        panel = wx.Panel(self)
+        self.tbIcon = GUISystemtray.GUISystemtray(self)
+
+        self.Bind(wx.EVT_ICONIZE, self.onMinimizeToTray)
+        self.Bind(wx.EVT_CLOSE, self.onClose)
 
     def __set_properties(self):
         self.SetTitle("Android Screen Control Server")
@@ -279,10 +299,6 @@ class GUIDrawer(wx.Frame):
         print("Event handler 'onStopADB' not implemented!")
         event.Skip()
 
-    def onMinimizeToTray(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        print("Event handler 'onMinimizeToTray' not implemented!")
-        event.Skip()
-
     def onExitCmd(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.Close(True)
 
@@ -295,3 +311,14 @@ class GUIDrawer(wx.Frame):
     def onStartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
         print("Event handler 'onStartADB' not implemented!")
         event.Skip()
+
+    #  Destroy the taskbar icon and the frame
+
+    def onClose(self, evt):
+        self.tbIcon.RemoveIcon()
+        self.tbIcon.Destroy()
+        self.Destroy()
+
+    # When minimizing, hide the frame so it "minimizes to tray"
+    def onMinimizeToTray(self, evt):
+        self.Hide()
