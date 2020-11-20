@@ -172,10 +172,10 @@ class GUIDrawer(wx.Frame):
             self.StartPane, wx.ID_ANY, "Webserver:", style=wx.ALIGN_RIGHT)
         grid_sizer_3.Add(
             webserverLbl, 0, wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 3)
-        webserverStatusLbl = wx.StaticText(
+        self.webserverStatusLbl = wx.StaticText(
             self.StartPane, wx.ID_ANY, "Stopped", style=wx.ALIGN_LEFT)
-        webserverStatusLbl.SetForegroundColour(wx.Colour(207, 99, 99))
-        grid_sizer_3.Add(webserverStatusLbl, 0,
+        self.webserverStatusLbl.SetForegroundColour(wx.Colour(207, 99, 99))
+        grid_sizer_3.Add(self.webserverStatusLbl, 0,
                          wx.ALIGN_CENTER_VERTICAL | wx.ALL | wx.EXPAND, 2)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
         grid_sizer_3.Add((0, 0), 0, 0, 0)
@@ -233,11 +233,12 @@ class GUIDrawer(wx.Frame):
         self.SetText(self.deviceStatusLbl, 'ConnectedDeviceName', False)
         self.SetText(self.webserverHostStatusLbl, 'WebserverHost', True)
         self.SetText(self.webserverPortStatusLbl, 'WebserverPort', True)
-        self.SetStatus(self.adbTunnelStatusLbl, 'ADB_Tunnel')
-        self.SetStatus(self.adbServerStatusLbl, 'ADB_Status')
+        self._SetStatus(self.adbTunnelStatusLbl, 'ADB_Tunnel')
+        self._SetStatus(self.adbServerStatusLbl, 'ADB_Status')
+        self._SetStatus(self.webserverStatusLbl, 'Webserver_Status')
 
         self.adbPortStatusLbl.SetLabel(
-            str(self.connectorRef.config['SETTINGS']['ADBTunnelHostPort']) + "-" + str(self.connectorRef.config['SETTINGS']['ADBTunnelClientPort']))
+            str(self.connectorRef.config['SETTINGS']['ADBTunnelHostPort']) + " : " + str(self.connectorRef.config['SETTINGS']['ADBTunnelClientPort']))
 
     def SetText(self, lbl, dictEntry, config):
         if(config):
@@ -245,17 +246,17 @@ class GUIDrawer(wx.Frame):
         else:
             lbl.SetLabel(str(self.connectorRef.guiDict[dictEntry]))
 
-    def SetStatus(self, lbl, dictEntry):
-        ret = self.GetRunning(dictEntry)
+    def _SetStatus(self, lbl, dictEntry):
+        ret = self._GetRunning(dictEntry)
         lbl.SetLabel(ret)
-        lbl.SetForegroundColour(self.GetColor(ret))
+        lbl.SetForegroundColour(self._GetStatusColour(ret))
 
-    def GetRunning(self, guiDictEntry):
+    def _GetRunning(self, guiDictEntry) -> str:
         ret = "Running" if str(
             self.connectorRef.guiDict[str(guiDictEntry)]).lower() == "true" else "Stopped"
         return ret
 
-    def GetColor(self, ret):
+    def _GetStatusColour(self, ret) -> wx.Colour:
         if(ret == "Stopped"):
             return wx.Colour(207, 99, 99)
         elif(ret == "Running"):
@@ -286,18 +287,10 @@ class GUIDrawer(wx.Frame):
         self.Close(True)
 
     def onStopWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        self.connectorRef.server.stop()
-        if(self.connectorRef.webThread.is_alive()):
-            self.connectorRef.guiDict['Webserver_Status'] = False
-            self.UpdateGUI()
-            self.connectorRef.webThread.terminate()
-        print("Webserver is stopping...")
+        self.connectorRef.onStopWebserver()
 
     def onStartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        if(not self.connectorRef.webThread.is_alive()):
-            self.connectorRef.guiDict['Webserver_Status'] = True
-            self.UpdateGUI()
-            self.connectorRef.StartWebThread()
+        self.connectorRef.onStartWebserver()
 
     def onStartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
         print("Event handler 'onStartADB' not implemented!")

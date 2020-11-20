@@ -63,16 +63,29 @@ class MainConnector:
         self.adbThread = CustomThread.Thread(target=self.StartADBHelper)
         self.adbThread.start()
 
+    # Webserver thread launch by init or button
     def StartWebThread(self):
         self.webThread = CustomThread.Thread(target=self.StartWebserver)
         self.webThread.daemon = True
         self.webThread.start()
+        self.guiDict['Webserver_Status'] = True
+        self.GUI.UpdateGUI()
 
+    # Webserver thread restart by button
     def RestartWebserverThread(self):
         tmp = CustomThread.Thread(target=self.RestartWebserver)
         tmp.start()
+        self.guiDict['Webserver_Status'] = False
+        self.GUI.UpdateGUI()
 
-    # TODO: Duplicate code. Needs refactor
+    def onStopWebserver(self):
+        self.server.stop()
+        if(self.webThread.is_alive()):
+            self.guiDict['Webserver_Status'] = False
+            self.GUI.UpdateGUI()
+            self.webThread.terminate()
+        print("Webserver is stopping...")
+
     def RestartWebserver(self):
         self.server.stop()
         if(self.webThread.is_alive()):
@@ -80,20 +93,22 @@ class MainConnector:
         time.sleep(3)
         if(not self.webThread.is_alive()):
             self.StartWebThread()
-
-    def SeeThreads(self):
-        for obj in gc.get_objects():
-            if isinstance(obj, Webserver.Webserver):
-                print(obj.name)
+        else:
+            print("Webserver couldn't be restarted. Check if port is alredy in use.")
 
     def StartWebserver(self):
         host = str(self.config['SETTINGS']['WebserverHost'])
         port = str(self.config['SETTINGS']['WebserverPort'])
-        # TODO: define host & port in settings
         print("Webserver is starting on 'http://"+host+":"+port+"'...")
         self.server = Webserver.MyWSGIRefServer(host=host, port=port)
         self.wserver = Webserver.Webserver(server=self.server)
         self.wserver.start()
+
+    # debug
+    def SeeThreads(self):
+        for obj in gc.get_objects():
+            if isinstance(obj, Webserver.Webserver):
+                print(obj.name)
 
 
 if __name__ == '__main__':

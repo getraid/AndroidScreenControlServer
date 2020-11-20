@@ -51,7 +51,8 @@ class ADBHelper:
             if self.__ProcessExistsWin('adb.exe'):
                 print("Adb.exe is running from somewhere else. Checking port...")
             else:
-                "Adb.exe is not running. Somewhere happend an error. Checking for port anyway..."
+                print(
+                    "Adb.exe is not running. Somewhere happend an error. Checking for port anyway...")
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             result = sock.connect_ex(('127.0.0.1', 5037))
             if result == 0:
@@ -95,12 +96,6 @@ class ADBHelper:
                     self.connectorRef.guiDict['ConnectedDeviceName'] = self.GetDeviceWin(
                     )
                     self.connectorRef.GUI.UpdateGUI()
-                # TODO: Use update instead of calling each time
-                # https://stackoverflow.com/questions/14698631/wxpython-statictext-dynamic-update
-                # self.connectorRef.GUI.st1.SetLabel(
-                #     "Status ADB: " + str(self.connectorRef.guiDict['ADB_Status']))
-                # self.connectorRef.guiDict["ConnectedDeviceName"] =  self.GetDeviceWin()
-                # self.EstConnectionWin()
         # Linux and MacOs are planned, but I firstly want to focus on the Windows version
         # -------------------------------------------
         # # Linux
