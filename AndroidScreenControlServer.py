@@ -52,9 +52,12 @@ class MainConnector:
             adbThread = CustomThread.Thread(target=self.StartADBHelper)
             adbThread.start()
             adbThread.join()
-        self.StartWebThread()
+        # disabled
+        # self.StartWebThread()
+        self.StartTodoserverThread()
 
     # For ADBHelper thread
+
     def StartADBHelper(self):
         self.ADBHelper = ADBHelper.ADBHelper(self)
 
@@ -62,6 +65,17 @@ class MainConnector:
     def StartADBThread(self):
         self.adbThread = CustomThread.Thread(target=self.StartADBHelper)
         self.adbThread.start()
+
+    def StartTodoserverThread(self):
+        self.todoThread = CustomThread.Thread(target=self.Todoserver)
+        self.todoThread.start()
+        self.todoThread.daemon = True
+        self.guiDict['Webserver_Status'] = True
+        self.GUI.UpdateGUI()
+
+    def Todoserver(self):
+        import Modules.TodoServer.run as todoserver
+        todoserver.startServer()
 
     # Webserver thread launch by init or button
     def StartWebThread(self):

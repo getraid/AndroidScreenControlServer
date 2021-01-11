@@ -31,7 +31,7 @@ class ADBHelper:
             os.system('mkdir Modules')
         url = str(
             self.connectorRef.config['SETTINGS']['ADB_Platform_Tools_URL'])
-        print("Can not find platform-tools folder.\nDownloading...")
+        print("Can not find platform-tools folder.\nDownloading from "+self.connectorRef.config['SETTINGS']['ADB_Platform_Tools_URL']+"...")
         dload.save_unzip(url, ".")
         print("Download completed.")
 
