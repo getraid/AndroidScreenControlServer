@@ -1,13 +1,20 @@
+import logging
 from flask import Flask, make_response, render_template, jsonify, request
 from flask_cors import CORS
 import dataset
 import random
 import math
+from sqlalchemy.pool import SingletonThreadPool
 
 app = Flask(__name__, static_url_path='',
             static_folder='static')
 CORS(app)
-db = dataset.connect('sqlite:///Modules/TodoServer/sqlite.db')
+db = dataset.connect(url='sqlite:///Modules/TodoServer/sqlite.db',
+                     engine_kwargs={'connect_args': {'check_same_thread': False}})
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.FATAL)
+
 
 zitate = []
 f = open("Modules/TodoServer/zitate.txt", "rb")
@@ -111,5 +118,5 @@ def api_each_book(id):
         return make_response(jsonify({}), 204)
 
 
-def startServer():
-    app.run()
+def startServer(whost, wport):
+    app.run(debug=False, host=whost, port=wport, threaded=True)

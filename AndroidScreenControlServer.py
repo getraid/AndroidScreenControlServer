@@ -79,9 +79,19 @@ class MainConnector:
         self.guiDict['Webserver_Status'] = True
         self.GUI.UpdateGUI()
 
+    def StopTodoserver(self):
+        print("Stopping Todo Server...")
+        if(self.todoThread.is_alive()):
+            self.guiDict['Webserver_Status'] = False
+            self.todoThread.terminate()
+            self.GUI.UpdateGUI()
+        print("Todoserver is stopping...")
+
     def Todoserver(self):
+        host = str(self.config['SETTINGS']['WebserverHost'])
+        port = str(self.config['SETTINGS']['WebserverPort'])
         import Modules.TodoServer.run as todoserver
-        todoserver.startServer()
+        todoserver.startServer(host, port)
 
     def RestartADB(self):
         self.StopADB()

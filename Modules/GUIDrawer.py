@@ -288,7 +288,8 @@ class GUIDrawer(wx.Frame):
             return wx.Colour(0, 0, 0)
 
     def onRestartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        self.connectorRef.RestartWebserverThread()
+        print("not implemented")
+        # self.connectorRef.RestartWebserverThread()
 
     def onRestartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.connectorRef.RestartADB()
@@ -304,10 +305,12 @@ class GUIDrawer(wx.Frame):
         self.Close(True)
 
     def onStopWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        self.connectorRef.onStopWebserver()
+        self.connectorRef.StopTodoserver()
+        # self.connectorRef.onStopWebserver()
 
     def onStartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        self.connectorRef.onStartWebserver()
+        self.connectorRef.Todoserver()
+        # self.connectorRef.onStartWebserver()
 
     def onStartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.connectorRef.StartADBThread()
