@@ -4,12 +4,18 @@ from flask_cors import CORS
 import dataset
 import random
 import math
+import os
 from sqlalchemy.pool import SingletonThreadPool
 
 app = Flask(__name__, static_url_path='',
             static_folder='static')
 CORS(app)
-db = dataset.connect(url='sqlite:///Modules/TodoServer/sqlite.db',
+
+tpath = 'Modules/TodoServer/sqlite.db'
+if not os.path.isdir('Modules'):
+    tpath = 'sqlite.db'
+
+db = dataset.connect(url='sqlite:///' + tpath,
                      engine_kwargs={'connect_args': {'check_same_thread': False}})
 
 log = logging.getLogger('werkzeug')
@@ -17,7 +23,11 @@ log.setLevel(logging.FATAL)
 
 
 zitate = []
-f = open("Modules/TodoServer/zitate.txt", "rb")
+
+tpath = 'Modules/TodoServer/zitate.txt'
+if os.path.isfile('zitate.txt'):
+    tpath = 'zitate.txt'
+f = open(tpath, "rb")
 for x in f:
     zitate.append(x)
 f.close()
@@ -120,3 +130,7 @@ def api_each_book(id):
 
 def startServer(whost, wport):
     app.run(debug=False, host=whost, port=wport, threaded=True)
+
+
+if (__name__ == "__main__"):
+    startServer('0.0.0.0', 5000)
