@@ -74,8 +74,8 @@ class MainConnector:
 
     def StartTodoserverThread(self):
         self.todoThread = CustomThread.Thread(target=self.Todoserver)
-        self.todoThread.start()
         self.todoThread.daemon = True
+        self.todoThread.start()
         self.guiDict['Webserver_Status'] = True
         self.GUI.UpdateGUI()
 
