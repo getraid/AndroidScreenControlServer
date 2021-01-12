@@ -309,7 +309,7 @@ class GUIDrawer(wx.Frame):
         # self.connectorRef.onStopWebserver()
 
     def onStartWebserver(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        self.connectorRef.Todoserver()
+        self.connectorRef.StartTodoserverThread()
         # self.connectorRef.onStartWebserver()
 
     def onStartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>

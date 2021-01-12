@@ -26,6 +26,7 @@ class Webserver:
 
 # https://stackoverflow.com/a/16056443
 # maybe replace with tornada.wsgi like this instead https://github.com/bottlepy/bottle/issues/636#issuecomment-47940562
+# Or maybe with flask like this: https://stackoverflow.com/a/45017691
 # to fix error below? Or just use another wsgi altogether
 class MyWSGIRefServer(ServerAdapter):
     server = None

@@ -2,6 +2,9 @@
 import os
 import platform
 import atexit
+import time
+import gc
+import requests
 
 # pip packages
 import wx
@@ -12,11 +15,10 @@ import Modules.CustomThread as CustomThread
 import Modules.GUIDrawer as GUIDrawer
 import Modules.ADBHelper as ADBHelper
 import Modules.Webserver as Webserver
-import time
-import gc
-
+import Modules.TodoServer.run as todoserver
 
 # TODO: LAYOUT
+
 
 class MainConnector:
     """Connects every component together.
@@ -81,16 +83,15 @@ class MainConnector:
 
     def StopTodoserver(self):
         print("Stopping Todo Server...")
-        if(self.todoThread.is_alive()):
-            self.guiDict['Webserver_Status'] = False
-            self.todoThread.terminate()
-            self.GUI.UpdateGUI()
-        print("Todoserver is stopping...")
+        # really ugly, but flask kinda sucks with multithreading
+        requests.get('http://'+str(self.config['SETTINGS']['WebserverHost'])+':'+str(
+            self.config['SETTINGS']['WebserverPort']+'/shutdown'))
+        self.guiDict['Webserver_Status'] = False
+        self.GUI.UpdateGUI()
 
     def Todoserver(self):
         host = str(self.config['SETTINGS']['WebserverHost'])
         port = str(self.config['SETTINGS']['WebserverPort'])
-        import Modules.TodoServer.run as todoserver
         todoserver.startServer(host, port)
 
     def RestartADB(self):

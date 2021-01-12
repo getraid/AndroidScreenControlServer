@@ -6,6 +6,7 @@ import random
 import math
 import os
 from sqlalchemy.pool import SingletonThreadPool
+from flask import request
 
 app = Flask(__name__, static_url_path='',
             static_folder='static')
@@ -72,6 +73,19 @@ def putDB_verify(content, id):
     if not "id" in content:
         content['id'] = id
     return content
+
+
+def shutdown_server():
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+
+
+@app.route('/shutdown', methods=['GET'])
+def shutdown():
+    shutdown_server()
+    return 'Server shutting down...'
 
 
 @app.route('/api/motivationalsentence', methods=['GET'])
