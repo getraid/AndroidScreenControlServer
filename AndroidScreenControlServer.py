@@ -16,6 +16,8 @@ import time
 import gc
 
 
+# TODO: LAYOUT
+
 class MainConnector:
     """Connects every component together.
     Also starts GUI and other necessary sub-threads"""
@@ -36,6 +38,7 @@ class MainConnector:
         frm.Show()
         self.GUI = frm
         self.AfterGUIInit()
+
         app.MainLoop()
 
     # In this method other threads are started to update/start everything post gui creation
@@ -49,10 +52,13 @@ class MainConnector:
     def AfterGUIInitThread(self):
         useADB = str(self.config['SETTINGS']['UseADB'])
         if(useADB.lower() == 'true'):
-            adbThread = CustomThread.Thread(target=self.StartADBHelper)
-            adbThread.start()
-            adbThread.join()
-        # disabled
+            self.StartADBThread()
+            self.adbThread.join()
+
+        startHidden = str(self.config['SETTINGS']['Start_Hidden'])
+        if(startHidden.lower() == 'true'):
+            self.GUI.onMinimizeToTray(None)
+
         # self.StartWebThread()
         self.StartTodoserverThread()
 
@@ -76,6 +82,18 @@ class MainConnector:
     def Todoserver(self):
         import Modules.TodoServer.run as todoserver
         todoserver.startServer()
+
+    def RestartADB(self):
+        self.StopADB()
+        self.StartADBThread()
+
+    def StopADB(self):
+        self.ADBHelper.OnExit()
+        self.guiDict['ADB_Status'] = False
+        self.GUI.UpdateGUI()
+        print("Stopping ADB Server...")
+        if(self.adbThread.is_alive()):
+            self.adbThread.terminate()
 
     # Webserver thread launch by init or button
     def StartWebThread(self):
@@ -136,6 +154,7 @@ if __name__ == '__main__':
         'Close_ADBServer_OnExit': True,
         'Dont_Check_For_ADBServer': False,
         'Start_Min_Sized': False,
+        'Start_Hidden': False,
         'Wait_For_Device': True,
         'ADBTunnelHostPort': 8000,
         'ADBTunnelClientPort': 8000,
