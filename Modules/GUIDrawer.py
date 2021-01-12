@@ -21,7 +21,6 @@ class GUIDrawer(wx.Frame):
         self.connectorRef = connector
 
         # METHODS
-
         self.InitializeWindow(**kw)
 
     def InitializeWindow(self, **kw):
@@ -54,9 +53,9 @@ class GUIDrawer(wx.Frame):
         item = wxglade_tmp_menu.Append(
             wx.ID_ANY, "Restart ADB", "Restarts ADB Server")
         self.Bind(wx.EVT_MENU, self.onRestartADB, id=item.GetId())
-        item = wxglade_tmp_menu.Append(
-            wx.ID_ANY, "Reconnect ADB Port", "Creates internal reverse proxy through USB")
-        self.Bind(wx.EVT_MENU, self.onRestartADBPort, id=item.GetId())
+        # item = wxglade_tmp_menu.Append(
+        #     wx.ID_ANY, "Reconnect ADB Port", "Creates internal reverse proxy through USB")
+        # self.Bind(wx.EVT_MENU, self.onRestartADBPort, id=item.GetId())
         item = wxglade_tmp_menu.Append(
             wx.ID_ANY, "Stop ADB", "Stops ADB Server")
         self.Bind(wx.EVT_MENU, self.onStopADB, id=item.GetId())
@@ -85,8 +84,8 @@ class GUIDrawer(wx.Frame):
             self.ServerCtrl, wx.ID_ANY, "Restart ADB")
         self.stopAdbBtn = wx.Button(self.ServerCtrl, wx.ID_ANY, "Stop ADB")
         self.startAdbBtn = wx.Button(self.ServerCtrl, wx.ID_ANY, "Start ADB")
-        self.restartAdbTunnelBtn = wx.Button(
-            self.ServerCtrl, wx.ID_ANY, "Restart ADB Tunnel")
+        # self.restartAdbTunnelBtn = wx.Button(
+        #     self.ServerCtrl, wx.ID_ANY, "Restart ADB Tunnel")
         self.reloadPluginsBtn = wx.Button(
             self.ServerCtrl, wx.ID_ANY, "Reload Plugins")
         self.minimizeToTrayBtn = wx.Button(
@@ -107,8 +106,8 @@ class GUIDrawer(wx.Frame):
         self.Bind(wx.EVT_BUTTON, self.onRestartADB, self.restartAdbBtn)
         self.Bind(wx.EVT_BUTTON, self.onStopADB, self.stopAdbBtn)
         self.Bind(wx.EVT_BUTTON, self.onStartADB, self.startAdbBtn)
-        self.Bind(wx.EVT_BUTTON, self.onRestartADBPort,
-                  self.restartAdbTunnelBtn)
+        # self.Bind(wx.EVT_BUTTON, self.onRestartADBPort,
+        #           self.restartAdbTunnelBtn)
         self.Bind(wx.EVT_BUTTON, self.onMinimizeToTray, self.minimizeToTrayBtn)
         self.Bind(wx.EVT_BUTTON, self.onExitCmd, self.exitSrvCtrlBtn)
 
@@ -130,7 +129,7 @@ class GUIDrawer(wx.Frame):
         self.restartAdbBtn.SetBackgroundColour(wx.Colour(255, 198, 53))
         self.stopAdbBtn.SetBackgroundColour(wx.Colour(255, 127, 127))
         self.startAdbBtn.SetBackgroundColour(wx.Colour(91, 191, 75))
-        self.restartAdbTunnelBtn.SetBackgroundColour(wx.Colour(255, 198, 53))
+        # self.restartAdbTunnelBtn.SetBackgroundColour(wx.Colour(255, 198, 53))
         self.reloadPluginsBtn.SetBackgroundColour(wx.Colour(255, 198, 53))
 
     def __do_layout(self):
@@ -231,7 +230,11 @@ class GUIDrawer(wx.Frame):
         grid_sizer_4.Add(self.restartAdbBtn, 0, wx.ALL | wx.EXPAND, 8)
         grid_sizer_4.Add(self.stopAdbBtn, 0, wx.ALL | wx.EXPAND, 8)
         grid_sizer_4.Add(self.startAdbBtn, 0, wx.ALL | wx.EXPAND, 8)
-        grid_sizer_4.Add(self.restartAdbTunnelBtn, 0, wx.ALL | wx.EXPAND, 8)
+
+        # grid_sizer_4.Add(self.restartAdbTunnelBtn, 0, wx.ALL | wx.EXPAND, 8)
+        grid_sizer_4.Add(wx.StaticText(self.ServerCtrl, wx.ID_ANY,
+                                       " ", style=wx.Left), 0, wx.ALL | wx.EXPAND, 8)
+
         grid_sizer_4.Add((0, 0), 0, 0, 0)
         grid_sizer_4.Add((0, 0), 0, 0, 0)
         grid_sizer_4.Add(self.reloadPluginsBtn, 0, wx.ALL | wx.EXPAND, 8)
@@ -288,16 +291,14 @@ class GUIDrawer(wx.Frame):
         self.connectorRef.RestartWebserverThread()
 
     def onRestartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        print("Event handler 'onRestartADB' not implemented!")
-        event.Skip()
+        self.connectorRef.RestartADB()
 
     def onRestartADBPort(self, event):  # wxGlade: GUIDrawer.<event_handler>
         print("Event handler 'onRestartADBPort' not implemented!")
         event.Skip()
 
     def onStopADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        print("Event handler 'onStopADB' not implemented!")
-        event.Skip()
+        self.connectorRef.StopADB()
 
     def onExitCmd(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.Close(True)
@@ -309,8 +310,7 @@ class GUIDrawer(wx.Frame):
         self.connectorRef.onStartWebserver()
 
     def onStartADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        print("Event handler 'onStartADB' not implemented!")
-        event.Skip()
+        self.connectorRef.StartADBThread()
 
     #  Destroy the taskbar icon and the frame
 

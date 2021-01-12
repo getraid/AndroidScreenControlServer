@@ -74,7 +74,6 @@ class ADBHelper:
                 self.DownloadWin()
             result = subprocess.getoutput(
                 'platform-tools\\adb.exe start-server')
-            # could slide a gui logger /logfile output in here, dunno yet
             print(result)
             checkADB = str(
                 self.connectorRef.config['SETTINGS']['Dont_Check_For_ADBServer'])
