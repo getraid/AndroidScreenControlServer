@@ -298,7 +298,7 @@ class GUIDrawer(wx.Frame):
         event.Skip()
 
     def onStopADB(self, event):  # wxGlade: GUIDrawer.<event_handler>
-        self.connectorRef.StopADB()
+        self.connectorRef.StopADB(True)
 
     def onExitCmd(self, event):  # wxGlade: GUIDrawer.<event_handler>
         self.Close(True)
@@ -315,9 +315,16 @@ class GUIDrawer(wx.Frame):
     #  Destroy the taskbar icon and the frame
 
     def onClose(self, evt):
+        # disables the polling upon close
+        self.connectorRef.CleanExit()
+
         self.tbIcon.RemoveIcon()
         self.tbIcon.Destroy()
         self.Destroy()
+        # very uncool (temporary) method of closing (which also leaves adb running)
+        # TODO: fix this mess... (╯°□°）╯︵ ┻━┻)
+        import os
+        os._exit(0)
 
     # When minimizing, hide the frame so it "minimizes to tray"
     def onMinimizeToTray(self, evt):

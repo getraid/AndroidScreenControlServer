@@ -6,6 +6,7 @@ import threading
 import atexit
 import sys
 import socket
+import time
 
 # pip packages
 import configparser
@@ -21,6 +22,8 @@ class ADBHelper:
         atexit.register(self.OnExit)
         # apply/set user configs
         self.connectorRef = connector
+        self.pollStatus = True
+        self._pollServerClosed = False
         # checks whether you run Windows, Linux or Mac and sets the commands accordingly
         self.StartADBServer()
 
@@ -117,6 +120,20 @@ class ADBHelper:
             'platform-tools\\adb.exe shell getprop ro.product.model')
         print(result)
         return result
+
+    def PollDeviceWin(self):
+        while(self.pollStatus):
+            result = subprocess.getoutput(
+                'platform-tools\\adb.exe devices')
+            time.sleep(1)
+            rsl = result.splitlines()
+            if (len(rsl) > 1 or self._pollServerClosed):
+                pass
+            else:
+                if(not self._pollServerClosed):
+                    print("device disconnected")
+                    self.connectorRef.RestartADB()
+                    self._pollServerClosed = True
 
     def EstConnectionWin(self, portHost, portDevice):
         result = subprocess.getoutput(

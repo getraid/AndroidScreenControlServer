@@ -2,6 +2,7 @@
 import os
 import platform
 import atexit
+import threading
 
 # pip packages
 import wx
@@ -54,11 +55,12 @@ class MainConnector:
         if(useADB.lower() == 'true'):
             self.StartADBThread()
             self.adbThread.join()
+            # TODO: make optional via config -> just set ADBHelper.pollStatus to false
+            self.StartADBPollThread()
 
         startHidden = str(self.config['SETTINGS']['Start_Hidden'])
         if(startHidden.lower() == 'true'):
             self.GUI.onMinimizeToTray(None)
-
         self.StartWebThread()
 
     # For ADBHelper thread
@@ -70,19 +72,27 @@ class MainConnector:
         self.adbThread = CustomThread.Thread(target=self.StartADBHelper)
         self.adbThread.start()
 
+    # ADBHelper-Polling thread launch once by init
+    # TODO: fix this mess... (╯°□°）╯︵ ┻━┻)
+    def StartADBPollThread(self):
+        self.adbPollThread = CustomThread.Thread(
+            target=self.ADBHelper.PollDeviceWin)
+        self.adbPollThread.start()
+
     def RestartADB(self):
-        self.StopADB()
+        self.StopADB(True)
         self.StartADBThread()
 
-    def StopADB(self):
+    def StopADB(self, force):
         self.ADBHelper.OnExit()
         self.guiDict['ADB_Status'] = False
         self.guiDict['ADB_Tunnel'] = False
         self.guiDict['ConnectedDeviceName'] = '<none>'
         self.GUI.UpdateGUI()
         print("Stopping ADB Server...")
-        if(self.adbThread.is_alive()):
-            self.adbThread.terminate()
+        if(force):
+            if(self.adbThread.is_alive()):
+                self.adbThread.terminate()
 
     # Webserver thread launch by init or button
     def StartWebThread(self):
@@ -111,6 +121,7 @@ class MainConnector:
         self.server.stop()
         if(self.webThread.is_alive()):
             self.webThread.terminate()
+        # TODO: Replace the whole sleeping everywhere with proper thread locking...
         time.sleep(3)
         if(not self.webThread.is_alive()):
             self.StartWebThread()
@@ -130,6 +141,14 @@ class MainConnector:
         for obj in gc.get_objects():
             if isinstance(obj, Webserver.Webserver):
                 print(obj.name)
+
+    # called by GUIDrawer upon close
+    def CleanExit(self):
+        useADB = str(self.config['SETTINGS']['UseADB'])
+        if(useADB.lower() == 'true'):
+            # TODO: can't exit, when ADBThread isn't created yet. Find a way around that
+            # self.ADBHelper.pollStatus = False
+            pass
 
 
 if __name__ == '__main__':
