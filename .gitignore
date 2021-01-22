@@ -7,6 +7,10 @@ __pycache__/
 # C extensions
 *.so
 
+sqlite.db
+sqlite.db-shm
+sqlite.db-wal
+
 # Distribution / packaging
 .Python
 build/
