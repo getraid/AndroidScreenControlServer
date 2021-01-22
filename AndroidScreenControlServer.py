@@ -77,6 +77,8 @@ class MainConnector:
     def StopADB(self):
         self.ADBHelper.OnExit()
         self.guiDict['ADB_Status'] = False
+        self.guiDict['ADB_Tunnel'] = False
+        self.guiDict['ConnectedDeviceName'] = '<none>'
         self.GUI.UpdateGUI()
         print("Stopping ADB Server...")
         if(self.adbThread.is_alive()):
@@ -118,7 +120,7 @@ class MainConnector:
     def StartWebserver(self):
         host = str(self.config['SETTINGS']['WebserverHost'])
         port = str(self.config['SETTINGS']['WebserverPort'])
-        print("Webserver is starting on 'http://"+host+":"+port+"'...")
+        print("Webserver is starting on 'http://"+host+":"+port+"'...\n")
         self.server = Webserver.MyWSGIRefServer(host=host, port=port)
         self.wserver = Webserver.Webserver(server=self.server)
         self.wserver.start()
