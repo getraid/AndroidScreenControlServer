@@ -5,6 +5,11 @@ Requires Python 3.X (Written with Python 3.8)
 
 Install depedencies with `pip install -r "requirements.txt"`
 
+Attention: One package is not included in the `requirements.txt`, because it has a typo in a command that I'm using here.
+So I made a git fork with some merges from @Hamz-a.
+To install this, you need to have git installed as well.
+- `pip install git+https://github.com/getraid/pure-python-adb.git#egg=pure-python-adb`
+
 Make sure to use `python AndroidScreenControlServer.py` instead of `py AndroidScreenControlServer.py`, if the program doesn't run properly
 
 

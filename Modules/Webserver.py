@@ -46,5 +46,7 @@ class MyWSGIRefServer(ServerAdapter):
         # but I'm to stupid to find out why.
         # As far as I see it only happens when you close the server before ever went to it via the browser
         print("Webserver is closing")
+        # TODO: This below could be the solution, but I need to get the self.server casted from '_MyWSGIRefServer_' to '_BaseServer_'
+        # self.server.__shutdown_request = True
         self.server.server_close()
         self.server.socket.close()

@@ -75,14 +75,14 @@ class MainConnector:
         self.StartADBThread()
 
     def StopADB(self):
-        self.ADBHelper.OnExit()
+        # self.ADBHelper.OnExit()
         self.guiDict['ADB_Status'] = False
         self.guiDict['ADB_Tunnel'] = False
         self.guiDict['ConnectedDeviceName'] = '<none>'
         self.GUI.UpdateGUI()
         print("Stopping ADB Server...")
-        if(self.adbThread.is_alive()):
-            self.adbThread.terminate()
+        # if(self.adbThread.is_alive()):
+        #     self.adbThread.terminate()
 
     # Webserver thread launch by init or button
     def StartWebThread(self):
@@ -131,6 +131,11 @@ class MainConnector:
             if isinstance(obj, Webserver.Webserver):
                 print(obj.name)
 
+    def SafeExit(self):
+        useADB = str(self.config['SETTINGS']['UseADB'])
+        if(useADB.lower() == 'true'):
+            self.ADBHelper.OnExit()
+
 
 if __name__ == '__main__':
     # Reads userconfig(config.ini) and passes it to MainConnector obj
@@ -144,7 +149,6 @@ if __name__ == '__main__':
         'Dont_Check_For_ADBServer': False,
         'Start_Min_Sized': False,
         'Start_Hidden': False,
-        'Wait_For_Device': True,
         'ADBTunnelHostPort': 8000,
         'ADBTunnelClientPort': 8000,
         'WebserverHost': 'localhost',

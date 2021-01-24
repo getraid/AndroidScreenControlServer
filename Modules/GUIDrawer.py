@@ -315,6 +315,7 @@ class GUIDrawer(wx.Frame):
     #  Destroy the taskbar icon and the frame
 
     def onClose(self, evt):
+        self.connectorRef.SafeExit()
         self.tbIcon.RemoveIcon()
         self.tbIcon.Destroy()
         self.Destroy()
