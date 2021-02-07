@@ -33,11 +33,8 @@ for x in f:
     zitate.append(x)
 f.close()
 
-table = db['todo']
-
-
-def fetch_db(id):
-    return table.find_one(id=id)
+tableTodo = db['todo']
+tableNotes = db['notes']
 
 
 def getrandomzitat():
@@ -47,22 +44,40 @@ def getrandomzitat():
     return zitate[chosenZitat]
 
 
-def fetch_db_all():
-    todos = []
-    for todo in table:
-        todos.append(todo)
-    return todos
+def fetch_db(table, id):
+    return table.find_one(id=id)
 
 
-def fetch_db_afterPost(content):
-    lastObjIndex = int(len(list(table.all())))
-    return fetch_db(lastObjIndex)
+def fetch_db_all(table):
+    items = []
+    if(table == None):
+        return None
+    if(table == "All"):
+        table = tableTodo
+        items = []
+        for item in table:
+            items.append(item)
+        table = tableNotes
+    for item in table:
+        items.append(item)
+    return items
+
+
+def fetch_db_afterPost_Todo(content):
+    lastObjIndex = int(len(list(tableTodo.all())))
+    return fetch_db(tableTodo, lastObjIndex)
+
+
+def fetch_db_afterPostNotes(content):
+    lastObjIndex = int(len(list(tableNotes.all())))
+    return fetch_db(tableNotes, lastObjIndex)
 
 # Check if request filetypes are matching (application/json)
+# TODO: Should be checking if it's using the correct table ¯\_(ツ)_/¯
 
 
 def postDB_verify(content):
-    if (isinstance(content['done'], bool) and isinstance(content['message'], str)):
+    if (isinstance(content['message'], str)):
         return content
     else:
         return None
@@ -102,31 +117,34 @@ def index():
 
 @app.route('/api/db_populate', methods=['GET'])
 def db_populate():
-    table.insert({
+    tableTodo.insert({
         "done": False,
         "message": "Demotask"
     })
 
-    return make_response(jsonify(fetch_db_all()),
-                         200)
+    tableNotes.insert({
+        "message": "This is a demo note"
+    })
+
+    return make_response(jsonify(fetch_db_all("All")), 200)
 
 
 @app.route('/api/todos', methods=['GET', 'POST'])
 def api_todos():
     if request.method == "GET":
-        return make_response(jsonify(fetch_db_all()), 200)
+        return make_response(jsonify(fetch_db_all(tableTodo)), 200)
     elif request.method == 'POST':
         content = request.json
         localC = postDB_verify(content)
-        table.insert(localC)
+        tableTodo.insert(localC)
         # 201 = Created
-        return make_response(jsonify(fetch_db_afterPost(content)), 201)
+        return make_response(jsonify(content), 201)
 
 
 @app.route('/api/todos/<id>', methods=['GET', 'PUT', 'DELETE'])
-def api_each_book(id):
+def api_todo_id(id):
     if request.method == "GET":
-        todo_obj = fetch_db(id)
+        todo_obj = fetch_db(tableTodo, id)
         if todo_obj:
             return make_response(jsonify(todo_obj), 200)
         else:
@@ -134,11 +152,42 @@ def api_each_book(id):
     elif request.method == "PUT":  # Updates the book
         content = request.json
         putC = putDB_verify(content, id)
-        table.update(putC, ['id'])
-        todo_obj = fetch_db(id)
+        tableTodo.update(putC, ['id'])
+        todo_obj = fetch_db(tableTodo, id)
         return make_response(jsonify(todo_obj), 200)
     elif request.method == "DELETE":
-        table.delete(id=id)
+        tableTodo.delete(id=id)
+        return make_response(jsonify({}), 204)
+
+
+@app.route('/api/notes', methods=['GET', 'POST'])
+def api_notes():
+    if request.method == "GET":
+        return make_response(jsonify(fetch_db_all(tableNotes)), 200)
+    elif request.method == 'POST':
+        content = request.json
+        localC = postDB_verify(content)
+        tableNotes.insert(localC)
+        # 201 = Created
+        return make_response(jsonify(content), 201)
+
+
+@app.route('/api/notes/<id>', methods=['GET', 'PUT', 'DELETE'])
+def api_notes_id(id):
+    if request.method == "GET":
+        note_obj = fetch_db(tableNotes, id)
+        if note_obj:
+            return make_response(jsonify(note_obj), 200)
+        else:
+            return make_response(jsonify(note_obj), 404)
+    elif request.method == "PUT":  # Updates the book
+        content = request.json
+        putC = putDB_verify(content, id)
+        tableNotes.update(putC, ['id'])
+        note_obj = fetch_db(tableNotes, id)
+        return make_response(jsonify(note_obj), 200)
+    elif request.method == "DELETE":
+        tableNotes.delete(id=id)
         return make_response(jsonify({}), 204)
 
 
