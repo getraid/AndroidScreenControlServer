@@ -1,5 +1,10 @@
 # Android ScreenControl Server
-(name pending)
+The idea was to use a cheap FireHD Tablet to use as a StreamDeck or generally as a direct connection PC HMI device.  
+
+I found out later, that while it worked, I didn't really have a use for it. So I stopped development on this tool as well.  
+It should theoretically still work (besides maybe missing/outdated dependencies).  
+
+---
 
 Requires Python 3.X (Written with Python 3.8)  
 
