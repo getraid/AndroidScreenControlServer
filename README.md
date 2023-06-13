@@ -4,6 +4,9 @@ The idea was to use a cheap FireHD Tablet to use as a StreamDeck or generally as
 I found out later, that while it worked, I didn't really have a use for it. So I stopped development on this tool as well.  
 It should theoretically still work (besides maybe missing/outdated dependencies).  
 
+You would need a local server of some sort, that exposes a port on all interfaces and set it via the config. 
+After that you can open a browser on the tablet/phone with localhost:port.  
+
 ---
 
 Requires Python 3.X (Written with Python 3.8)  
